@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var _     = require('underscore'),
   ask     = require('./ask'),
   Cli     = require('wcli'),

@@ -1,7 +1,7 @@
 {
   "name": "wault",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.2",
+  "description": "My personal vault to store things locally",
   "main": "index.js",
   "scripts": {
     "test": "jasmine"
@@ -16,5 +16,10 @@
     "read": "^1.0.7",
     "underscore": "^1.8.3",
     "wcli": "0.0.4"
+  },
+  "bin": "./wault",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wdalmut/wault.git"
   }
 }
