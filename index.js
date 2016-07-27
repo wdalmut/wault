@@ -13,6 +13,7 @@ var opts = {
 cli = new Cli({
   "store": _.defaults(opts, {}),
   "get": _.defaults(opts, {}),
+  "del": _.defaults(opts, {}),
 });
 
 ask({
@@ -56,6 +57,20 @@ cli.get = function(options, args) {
     line.values.forEach(function(value) {
       cli.info(" * " + value.underline.red);
     });
+  }, function(err) {
+    cli.error(err + "");
+  });
+};
+
+cli.del = function(options, args) {
+  var db = levelup(options.db);
+
+  var vault = new Vault(db, cli.options.password);
+
+  ask({prompt: "Key:"}).then(function(key) {
+    return vault.del(key);
+  }).then(function(key) {
+    cli.info("Deleted key: " + key);
   }, function(err) {
     cli.error(err + "");
   });

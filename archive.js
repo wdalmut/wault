@@ -72,4 +72,20 @@ Archive.prototype.get = function(key) {
   return d.promise;
 };
 
+Archive.prototype.del = function(key) {
+  var d = q.defer();
+
+  var self = this;
+
+  var rekey = this.generateKey(key);
+
+  this.db.delAsync(crypt.hash(rekey, 'hex')).then(function() {
+    d.resolve(key);
+  }, function(err) {
+    d.reject(err);
+  });
+
+  return d.promise;
+};
+
 module.exports = Archive;
