@@ -1,11 +1,8 @@
-#!/usr/bin/env node
-
 var _     = require('underscore'),
   ask     = require('./ask'),
   Cli     = require('wcli'),
   levelup = require('levelup'),
-  crypt   = require('./aes256'),
-  Promise = require('bluebird')
+  Vault   = require('./archive'),
   dbPath  = process.env.WAULT_PATH || "/tmp/wault.level"
 ;
 
@@ -30,7 +27,8 @@ ask({
 
 cli.store = function(options, args) {
   var db = levelup(options.db);
-  Promise.promisifyAll(db);
+
+  var vault = new Vault(db, cli.options.password);
 
   var key, value;
   ask({prompt: "Key:"}).then(function(k) {
@@ -38,7 +36,7 @@ cli.store = function(options, args) {
     return ask({prompt: "Value:"});
   }).then(function(v) {
     value = v;
-    return db.putAsync(crypt.hash(key, 'hex'), crypt.encrypt(cli.options.password, value));
+    return vault.save(key.split(" "), value);
   }).then(function() {
     cli.info("Your key is stored securely".underline.green);
   }, function(err) {
@@ -48,13 +46,17 @@ cli.store = function(options, args) {
 
 cli.get = function(options, args) {
   var db = levelup(options.db);
-  Promise.promisifyAll(db);
+
+  var vault = new Vault(db, cli.options.password);
 
   ask({prompt: "Key:"}).then(function(key) {
-    return db.getAsync(crypt.hash(key, 'hex'));
-  }).then(function(value) {
-    cli.info("Here your content: " + crypt.decrypt(cli.options.password, value).underline.red);
+    return vault.get(key);
+  }).then(function(line) {
+    cli.info("Here your content:");
+    line.values.forEach(function(value) {
+      cli.info(" * " + value.underline.red);
+    });
   }, function(err) {
     cli.error(err + "");
   });
-}
+};
