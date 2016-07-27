@@ -15,6 +15,9 @@ database at path `~/.wault`. By default the database is at path
 
 ## Use it
 
+
+### Create new values
+
 ```sh
 wault store
 
@@ -22,6 +25,8 @@ Password:
 Key: this-is-my-key
 Value: http://www.google.it/
 ```
+
+### Get existing values
 
 ```sh
 wault get
@@ -31,6 +36,17 @@ Key: this-is-my-key
 
 Here your content:
  * http://www.google.it/
+```
+
+### Delete keys
+
+```sh
+wault del
+
+Password:
+Key: this-is-my-key
+
+Deleted key: this-is-my-key
 ```
 
 ## Multiple keys
