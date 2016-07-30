@@ -4,88 +4,44 @@ var Promise = require('bluebird'),
   _         = require('underscore')
 ;
 
-Archive = function(db, password) {
-  Promise.promisifyAll(db);
-
+Archive = function(q, db) {
+  this.q = q;
   this.db = db;
-  this.password = password;
-
-  return this;
 };
 
-Archive.prototype.generateKey = function(key) {
-  return key + "_" + this.password;
-};
+Archive.prototype.save = function(password, keys, value) {
+  var db = this.db;
 
-Archive.prototype.save = function(keys, value) {
-  var self = this;
-  var d = q.defer();
-
-  var getPromises = [];
-  var savePromises = [];
-  keys.forEach(function(key) {
-    getPromises.push(self.get(key));
+  var saves = [];
+  keys.split(" ").forEach(function(key) {
+    saves.push(db.save(password, key, value));
   });
 
-  q.all(getPromises).then(function(replies) {
-    replies.forEach(function(line) {
-      line.values.push(value);
-      line.values = _.uniq(line.values);
+  return this.q.all(saves);
+};
 
-      savePromises.push(self.saveKey(line.key, JSON.stringify(line.values)));
-    });
+Archive.prototype.get = function(password, keys) {
+  var db = this.db;
 
-    return q.all(savePromises);
-  }).then(function() {
-    d.resolve();
-  }).fail(function(err) {
-    d.reject(err);
+  var gets = [];
+  keys.split(" ").forEach(function(key) {
+    gets.push(db.get(password, key));
   });
 
-  return d.promise;
+  return this.q.all(gets);
 };
 
-Archive.prototype.saveKey = function(key, value) {
-  var self = this;
+Archive.prototype.del = function(password, keys) {
+  var db = this.db;
 
-  key = self.generateKey(key);
-  return self.db.putAsync(crypt.hash(key, 'hex'), crypt.encrypt(self.password, value));
-};
-
-Archive.prototype.get = function(key) {
-  var d = q.defer();
-
-  var self = this;
-
-  var rekey = this.generateKey(key);
-
-  this.db.getAsync(crypt.hash(rekey, 'hex')).then(function(value) {
-    var decypted = crypt.decrypt(self.password, value);
-    d.resolve({key: key, values: JSON.parse(decypted)});
-  }, function(err) {
-    if (err.notFound) {
-      return d.resolve({key: key, values: []});
-    }
-    d.reject(err);
+  var dels = [];
+  keys.split(" ").forEach(function(key) {
+    dels.push(db.del(password, key));
   });
 
-  return d.promise;
+  return this.q.all(dels);
 };
 
-Archive.prototype.del = function(key) {
-  var d = q.defer();
-
-  var self = this;
-
-  var rekey = this.generateKey(key);
-
-  this.db.delAsync(crypt.hash(rekey, 'hex')).then(function() {
-    d.resolve(key);
-  }, function(err) {
-    d.reject(err);
-  });
-
-  return d.promise;
-};
-
-module.exports = Archive;
+define(["q", "./db"], function(q, db) {
+  return new Archive(q, db);
+});

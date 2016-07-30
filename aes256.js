@@ -28,4 +28,6 @@ aes256.decrypt = function (key, data) {
   return plaintext;
 };
 
-module.exports = aes256;
+define([], function() {
+  return aes256;
+});

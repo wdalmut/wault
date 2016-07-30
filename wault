@@ -1,2 +1,10 @@
 #!/usr/bin/env node
-require('./index.js')
+var requirejs = require('requirejs');
+
+requirejs.config({
+  nodeRequire: require
+});
+
+requirejs(['./app'], function(app) {
+    app();
+});
