@@ -1,9 +1,3 @@
-var Promise = require('bluebird'),
-  crypt     = require('./aes256'),
-  q         = require('q'),
-  _         = require('underscore')
-;
-
 Archive = function(q, db) {
   this.q = q;
   this.db = db;
