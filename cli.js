@@ -20,9 +20,9 @@ define(["wcli", "archive", "./ask", "underscore"], function(Cli, archive, ask, _
         value = v;
         return archive.save(password, key, value);
       }).then(function() {
-        cli.info("OK");
+        cli.info("Your keys are stored securely".underline.green);
       }).fail(function(err) {
-        console.log(err);
+        cli.error(err + "");
       });
     };
 
